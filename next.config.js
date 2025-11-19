@@ -14,8 +14,8 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '50mb',
     },
-    // React compiler (Next.js 15+)
-    reactCompiler: true,
+    // React compiler (Next.js 15+) - disabled due to babel plugin issues
+    // reactCompiler: true,
     // Partial Prerendering - requires canary version, disabled for stable
     // ppr: true,
   },
