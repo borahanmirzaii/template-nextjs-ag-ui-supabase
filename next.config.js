@@ -16,8 +16,8 @@ const nextConfig = {
     },
     // React compiler (Next.js 15+)
     reactCompiler: true,
-    // Partial Prerendering
-    ppr: true,
+    // Partial Prerendering - requires canary version, disabled for stable
+    // ppr: true,
   },
 
   // Image optimization
