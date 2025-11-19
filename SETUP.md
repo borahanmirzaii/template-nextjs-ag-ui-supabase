@@ -1,11 +1,11 @@
-# Setup Guide
+# 🚀 Setup Instructions
 
 ## Prerequisites
 
-- Node.js 18+ and npm
-- Supabase account (free tier works)
-- Google Gemini API key
-- Redis (for BullMQ queue processing - optional for development)
+- Node.js 18+ installed
+- Supabase account
+- Google AI (Gemini) API key
+- OAuth credentials for platforms you want to integrate (optional)
 
 ## Step 1: Install Dependencies
 
@@ -13,44 +13,103 @@
 npm install
 ```
 
-## Step 2: Set Up Supabase
+## Step 2: Setup Supabase
 
-1. Create a new Supabase project at https://supabase.com
-2. Go to SQL Editor and run the migrations in order:
-   - `supabase/migrations/001_initial_schema.sql`
-   - `supabase/migrations/002_files_table.sql`
-   - `supabase/migrations/003_analysis_table.sql`
-   - `supabase/migrations/004_knowledge_base.sql`
-   - `supabase/migrations/005_integrations.sql`
+1. Create a new project at https://supabase.com
 
-3. Create a storage bucket:
-   - Go to Storage in Supabase dashboard
-   - Create a bucket named `user-files`
-   - Set it to private
+2. Run migrations:
+   - Go to SQL Editor in Supabase Dashboard
+   - Copy SQL files from `supabase/migrations/` 
+   - Execute them in order: 001, 002, 003, 004, 005
+
+3. Enable pgvector extension:
+   - Go to Database → Extensions
+   - Search for "pgvector" and enable it
+
+4. Create storage bucket named `user-files`:
+   - Go to Storage → Create bucket
+   - Name: `user-files`
+   - Public: No
    - Enable RLS policies
 
-4. Get your Supabase credentials:
-   - Project URL
-   - Anon key
-   - Service role key
+5. Get your Supabase credentials:
+   - Project URL: Settings → API → Project URL
+   - Anon key: Settings → API → Project API keys → anon/public
+   - Service role key: Settings → API → Project API keys → service_role
 
-## Step 3: Configure Environment Variables
-
-Copy `.env.example` to `.env.local` and fill in:
+## Step 3: Configure Environment
 
 ```bash
 cp .env.example .env.local
 ```
 
-Required variables:
-- `NEXT_PUBLIC_SUPABASE_URL` - Your Supabase project URL
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Your Supabase anon key
-- `SUPABASE_SERVICE_ROLE_KEY` - Your Supabase service role key
-- `GOOGLE_GENERATIVE_AI_API_KEY` - Your Google Gemini API key
-- `REDIS_URL` - Redis connection string (optional, defaults to localhost)
-- `NEXT_PUBLIC_APP_URL` - Your app URL (http://localhost:3000 for dev)
+Fill in all required values in `.env.local`:
 
-## Step 4: Run the Development Server
+### Required Variables
+
+```bash
+# Application URL
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+
+# Google Gemini AI
+GOOGLE_GENERATIVE_AI_API_KEY=your_gemini_api_key
+```
+
+### Optional: OAuth for MCP Integrations
+
+```bash
+# Google Workspace OAuth
+GOOGLE_OAUTH_CLIENT_ID=your_google_client_id
+GOOGLE_OAUTH_CLIENT_SECRET=your_google_client_secret
+
+# Notion OAuth
+NOTION_OAUTH_CLIENT_ID=your_notion_client_id
+NOTION_OAUTH_CLIENT_SECRET=your_notion_client_secret
+
+# GitHub OAuth
+GITHUB_OAUTH_CLIENT_ID=your_github_client_id
+GITHUB_OAUTH_CLIENT_SECRET=your_github_client_secret
+```
+
+## Step 4: Setup OAuth (Optional)
+
+### Google Workspace
+
+1. Go to https://console.cloud.google.com/apis/credentials
+2. Create OAuth 2.0 Client ID
+3. Application type: Web application
+4. Add authorized redirect URI: `http://localhost:3000/api/oauth/callback/google`
+5. Enable APIs:
+   - Gmail API
+   - Google Drive API
+   - Google Docs API
+   - Google Sheets API
+6. Copy Client ID and Client Secret to `.env.local`
+
+### Notion
+
+1. Go to https://www.notion.so/my-integrations
+2. Click "New integration"
+3. Choose "Public integration" or "Internal integration"
+4. Copy OAuth Client ID and Client Secret
+5. Add redirect URI: `http://localhost:3000/api/oauth/callback/notion`
+6. Add credentials to `.env.local`
+
+### GitHub
+
+1. Go to https://github.com/settings/developers
+2. Click "New OAuth App"
+3. Application name: Your app name
+4. Homepage URL: `http://localhost:3000`
+5. Authorization callback URL: `http://localhost:3000/api/oauth/callback/github`
+6. Copy Client ID and Client Secret to `.env.local`
+
+## Step 5: Run Development Server
 
 ```bash
 npm run dev
@@ -58,33 +117,92 @@ npm run dev
 
 Visit http://localhost:3000
 
-## Step 5: Set Up Redis (Optional)
+## Step 6: First-Time Usage
 
-For production or async processing, set up Redis:
+1. **Sign up / Sign in**
+   - Create an account or sign in with email
 
-```bash
-# Using Docker
-docker run -d -p 6379:6379 redis
+2. **Upload Files**
+   - Go to Files → Upload a document
+   - Drag and drop files or click to browse
+   - Wait for analysis to complete
 
-# Or use a cloud Redis service
-```
+3. **Knowledge Base**
+   - Go to Knowledge Base → Chat with your files
+   - Ask questions about your uploaded documents
+   - Use semantic search to find specific information
 
-Update `REDIS_URL` in `.env.local`
+4. **Integrations** (Optional)
+   - Go to Integrations → Connect platforms
+   - Click "Connect" on a platform
+   - Authorize the OAuth flow
+   - Browse and execute available tools
 
-## Features
+## Troubleshooting
 
-- ✅ File upload with drag & drop
-- ✅ AI-powered file analysis using Gemini
-- ✅ Knowledge base with vector search
-- ✅ Chat interface with RAG
-- ✅ MCP integrations (Notion, Jira, Google)
-- ✅ Real-time file processing
-- ✅ Secure authentication
+### Database errors
+- Verify migrations ran successfully in Supabase SQL Editor
+- Check that pgvector extension is enabled
+- Ensure RLS policies are set up correctly
 
-## Next Steps
+### Upload fails
+- Check Supabase storage bucket configuration
+- Verify bucket name is exactly `user-files`
+- Check RLS policies allow user uploads
 
-1. Sign up for an account
-2. Upload your first file
-3. Explore the knowledge base
-4. Connect integrations
+### OAuth errors
+- Verify redirect URIs match exactly (including http/https)
+- Check OAuth credentials are correct
+- Ensure OAuth apps are configured with correct scopes
 
+### MCP connection fails
+- Verify integration credentials are saved correctly
+- Check MCP server implementations are available
+- Review error messages in integration status
+
+### AI analysis fails
+- Verify Google Gemini API key is valid
+- Check API quota limits
+- Review file size limits (some files may be too large)
+
+## Production Deployment
+
+### Vercel Deployment
+
+1. Push code to GitHub
+2. Import project in Vercel
+3. Add environment variables:
+   - Copy all variables from `.env.local`
+   - Update `NEXT_PUBLIC_APP_URL` to your production domain
+   - Update OAuth redirect URIs to production URLs
+4. Deploy
+
+### Environment Variables for Production
+
+Update OAuth redirect URIs:
+- Google: `https://yourdomain.com/api/oauth/callback/google`
+- Notion: `https://yourdomain.com/api/oauth/callback/notion`
+- GitHub: `https://yourdomain.com/api/oauth/callback/github`
+
+### Supabase Production Setup
+
+1. Create production Supabase project
+2. Run all migrations
+3. Update environment variables
+4. Configure production storage bucket
+5. Set up production RLS policies
+
+## Additional Resources
+
+- [Supabase Documentation](https://supabase.com/docs)
+- [Google Gemini API](https://ai.google.dev/)
+- [Model Context Protocol](https://modelcontextprotocol.io)
+- [Next.js Documentation](https://nextjs.org/docs)
+
+## Support
+
+For issues or questions:
+1. Check troubleshooting section above
+2. Review error logs in browser console
+3. Check Supabase logs in dashboard
+4. Verify all environment variables are set correctly
