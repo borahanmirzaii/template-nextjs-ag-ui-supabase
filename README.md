@@ -1,5 +1,7 @@
 # Next.js Supabase File AI Platform
 
+![Template](https://img.shields.io/badge/template-frontend-blue?style=flat-square)
+
 > Next.js 15 template with AG-UI protocol, Supabase backend, and AI-powered file analysis. Includes drag-and-drop upload, knowledge base creation, and MCP integration.
 
 ![Template](https://img.shields.io/badge/template-frontend-blue?style=flat-square)
